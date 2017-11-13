@@ -38,7 +38,22 @@ film_genre = film_before_2017%>%
 film_genre
 
 
+
 ```
+
+```{r}
+# we define the film with more than 3 genres as the film with multilple genres and 
+# find out how many films has more than 3 genres in each year from 1874 to 2017
+multi_genre_film = 
+  film_genre %>% 
+  filter(sum >= 3) %>% #want the films with overlapping genres (more than 3)
+  group_by(production_year) %>% 
+  summarise(multi_num = n_distinct(id))
+
+multi_genre_film
+```
+
+
 
 ```{r}
 #Find the average of the number of film's genres from 1874 to 2017
