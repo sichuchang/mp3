@@ -19,21 +19,50 @@ newtable<-db %>%
 ```
 
 ```{r}
-#a smaller table, from year 1901-1999
-filmsmall = newtable%>%
-  filter(production_year>1900 & production_year<2000)
-filmsmall
+glimpse(newtable)
+#a smaller table, from year 1901-1999 
+#I'm not sure if it's necessary. Rather, It seems like some data is missing from 2018 to 2115 maybe we should filter out this year's data
+film_before_2017 = newtable%>%
+  filter(production_year<=2017)
+glimpse(film_before_2017)
 ```
+
+Q:Is is true that older movies tended to fit squarely in one genre, while more recent movies tend to span multiple genres?
+
 ```{r}
-new = filmsmall%>%
-  group_by(id,production_year)%>%
-  summarise(sum = n_distinct(info))%>%
-  arrange(production_year)
-new
+#Find the film has how many genres in each year from 1874 to 2017
+film_genre = film_before_2017%>%
+   group_by(id,production_year)%>%
+   summarise(sum = n_distinct(info))%>%
+   arrange(production_year)
+film_genre
+
+
 ```
 
 ```{r}
-#find the mse of each year
+#Find the average of the number of film's genres from 1874 to 2017
+film_genre_avg = 
+film_genre %>%
+  group_by(production_year) %>% 
+  summarise(avg_genre = mean(sum))
+
+film_genre_avg
+# the data seems like the avg doesn't change that much... (not what we expect...)
+
+```
+
+
+```{r}
+#How many different genres appear in each year from 1874 to 2017 
+info_type_year = film_before_2017%>%
+  group_by(production_year)%>%
+  summarise(sum = n_distinct(info))%>% #how many different genres each year
+  arrange(production_year)
+info_type_year
+
+
+# from the data we can see that the number of distinct genres increases by years
 ```
 
 ```{r}
