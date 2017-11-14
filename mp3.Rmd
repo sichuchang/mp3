@@ -33,7 +33,7 @@ Q:Is is true that older movies tended to fit squarely in one genre, while more r
 #Find the film has how many genres in each year from 1874 to 2017
 film_genre = film_before_2017%>%
    group_by(id,production_year)%>%
-   summarise(sum = n_distinct(info))%>%
+   summarise(sum_genre = n_distinct(info))%>%
    arrange(production_year)
 film_genre
 
@@ -46,13 +46,33 @@ film_genre
 # find out how many films has more than 3 genres in each year from 1874 to 2017
 multi_genre_film = 
   film_genre %>% 
-  filter(sum >= 3) %>% #want the films with overlapping genres (more than 3)
+  filter(sum_genre >= 3) %>% #want the films with overlapping genres (more than 3)
   group_by(production_year) %>% 
   summarise(multi_num = n_distinct(id))
 
 multi_genre_film
 ```
 
+
+```{r}
+# how many films each year
+total_genre = 
+  film_genre %>% 
+  group_by(production_year) %>% 
+  summarise(total_num = n_distinct(id))
+
+total_genre
+```
+
+```{r}
+#percentages of multi_genres film each year
+join_total_multi = 
+  total_genre %>% left_join(multi_genre_film, by ='production_year') %>%
+  mutate(multi_num_new = ifelse(is.na(multi_num),0,multi_num)) %>%
+  mutate(multi_percent = multi_num_new/total_num)
+
+join_total_multi
+```
 
 
 ```{r}
@@ -81,5 +101,26 @@ info_type_year
 ```
 
 ```{r}
-#plot the mse of each year
+#A graoh of genres overyears
+genre_oyG = info_type_year%>%
+  ggplot(aes(x = production_year,y = sum))+
+    geom_line()
+genre_oyG
 ```
+
+```{r}
+#A graph of genres overyear
+genre_oyG = info_type_year%>%
+  ggplot(aes(x = production_year,y = sum))+
+    geom_line()
+genre_oyG
+#A graph of total films made overyear
+film_oyG = film_before_2017%>%
+  group_by(production_year)%>%
+  summarize(sum_films = n())%>%
+  ggplot(aes(x = production_year,y = sum_films))+
+    geom_line()
+film_oyG
+```
+
+From the 2 graphs above we can see that the number of genre types had a big increase from 1890 to 1910. The total amount of films had an increase accordingly during this period of time, but it soon decreased in around 1910-1920, mighty because of WW1. The amount of films didn't reach the amount once reached in around 1903 untill around 1995. However WW1 didn't decrease the genres of films made, but increased them.
