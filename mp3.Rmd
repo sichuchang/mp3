@@ -4,6 +4,10 @@ author: "Chujun He"
 date: "11/11/2017"
 output: html_document
 ---
+```{r}
+library(tidyverse)
+```
+
 
 ```{r}
 library(mdsr)
@@ -27,6 +31,13 @@ film_before_2017 = newtable%>%
 glimpse(film_before_2017)
 ```
 
+
+
+```{r}
+ggplot(film_before_2017,aes(x=production_year,y=sum))+facet_wrap(~info)
+```
+
+
 Q:Is is true that older movies tended to fit squarely in one genre, while more recent movies tend to span multiple genres?
 
 ```{r}
@@ -40,6 +51,13 @@ film_genre
 
 
 ```
+
+```{r}
+
+```
+
+
+
 
 ```{r}
 # we define the film with more than 3 genres as the film with multilple genres and 
@@ -81,5 +99,14 @@ info_type_year
 ```
 
 ```{r}
-#plot the mse of each year
+percentage_table<-info_type_year%>%
+  left_join(multi_genre_film,by="production_year")%>%
+  mutate(percentage=sum/multi_num)%>%
+  left_join(film_before_2017,)
+percentage_table
 ```
+
+```{r}
+ggplot(percentage_table,aes(x=production_year,y=percentage))+geom_wrap(~)
+```
+
