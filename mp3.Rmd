@@ -9,6 +9,8 @@ library(mdsr)
 library(RMySQL)
 ```
 
+In this project, we are trying to figure out the changes in flim genres over years and their possible historical influential factors, which is the second question of the problem set.
+
 ```{r}
 db <- dbConnect_scidb(dbname = "imdb")
 newtable<-db %>%
