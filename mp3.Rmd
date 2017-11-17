@@ -52,6 +52,16 @@ multi_genre_film =
 multi_genre_film
 ```
 
+```{r}
+# how many films each year
+total_genre = 
+  film_genre %>% 
+  group_by(production_year) %>% 
+  summarise(total_num = n_distinct(id))
+
+total_genre
+```
+
 
 ```{r}
 #percentages of multi_genres film each year
