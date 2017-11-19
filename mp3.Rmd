@@ -11,38 +11,31 @@ library(RMySQL)
 
 In this project, we are trying to figure out the changes in flim genres over years and their possible historical influential factors, which is the second question of the problem set.
 
-```{r}
+```{r,message=FALSE}
 db <- dbConnect_scidb(dbname = "imdb")
-newtable<-db %>%
+#a smaller table, years before 2017
+#Since some data is missing from 2018 to 2115, we filter out these years' data
+film_before_2017<-db %>%
   dbGetQuery("SELECT t.id, t.title, t.production_year,
              mi.info as info
              FROM title t
              Join movie_info as mi on mi.movie_id = t.id
              where info_type_id = 3
+             and production_year <= 2017
              having production_year IS NOT NULL;")
-```
-
-```{r}
-glimpse(newtable)
-#a smaller table, from year 1901-1999 
-#Since some data is missing from 2018 to 2115, we filter out these years' data
-film_before_2017 = newtable%>%
-  filter(production_year<=2017)
-glimpse(film_before_2017)
 ```
 
 Q:Is is true that older movies tended to fit squarely in one genre, while more recent movies tend to span multiple genres?
 
-```{r}
+```{r,message=FALSE}
 #Find each film has how many genres in each year from 1874 to 2017
 film_genre = film_before_2017%>%
    group_by(id,production_year)%>%
    summarise(sum_genre = n_distinct(info))%>%
    arrange(production_year)
-film_genre
 ```
 
-```{r}
+```{r,message=FALSE}
 # we define the film with more than 3 genres as the film with multilple genres and 
 # find out how many films has more than 3 genres in each year from 1874 to 2017
 multi_genre_film = 
@@ -50,36 +43,32 @@ multi_genre_film =
   filter(sum_genre >= 3) %>% #want the films with overlapping genres (more than 3)
   group_by(production_year) %>% 
   summarise(multi_num = n_distinct(id))
-
-multi_genre_film
 ```
 
-```{r}
+```{r,message=FALSE}
 # how many films each year
 total_genre = 
   film_genre %>% 
   group_by(production_year) %>% 
   summarise(total_num = n_distinct(id))
-
-total_genre
 ```
 
 
-```{r}
+```{r,message=FALSE}
 #percentages of multi_genres film each year
 join_total_multi = 
   total_genre %>% left_join(multi_genre_film, by ='production_year') %>%
   mutate(multi_num_new = ifelse(is.na(multi_num),0,multi_num)) %>%
   mutate(multi_percent = multi_num_new/total_num)
-
-join_total_multi
 ```
 
-```{r}
-ggplot(join_total_multi,aes(x=production_year,y=multi_percent))+
+```{r,message=FALSE}
+multi_plot = ggplot(join_total_multi,aes(x=production_year,y=multi_percent))+
   geom_line()+
   geom_smooth()+
   theme_minimal()
+
+multi_plot
 ```
 
 From the graph, we can see that the percentage of movies that have multi-genres increaseed from 1900 to 1940, and then it kept decreasing till 2000. 
@@ -94,18 +83,15 @@ Overall, it is true that movies made today tend to have overlapping genres than 
 2007: Netflix became the first subscription service to offer ad-free, legal video streaming of movies directly onto one’s computer screen.
 (Retrieved from http://www.filmsite.org/2000sintro.html)
 
-```{r}
+```{r,message=FALSE}
 #How many different genres appear in each year from 1874 to 2017 
 info_type_year = film_before_2017%>%
   group_by(production_year)%>%
   summarise(sum = n_distinct(info))%>% #how many different genres each year
   arrange(production_year)
-info_type_year
 ```
 
-From the data we can see that the number of distinct genres increases by years.
-
-```{r}
+```{r,message=FALSE}
 #A graph of genres overyears
 genre_oyG = info_type_year%>%
   ggplot(aes(x = production_year,y = sum))+
@@ -113,8 +99,7 @@ genre_oyG = info_type_year%>%
 genre_oyG
 ```
 
-
-```{r}
+```{r,message=FALSE}
 #A graph of total films made overyear
 film_oyG = film_before_2017%>%
   group_by(production_year)%>%
