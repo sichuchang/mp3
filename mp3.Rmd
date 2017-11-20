@@ -10,7 +10,7 @@ library(RMySQL)
 library(ggplot2)
 ```
 
-In this project, we are trying to figure out the changes in flim genres over years and their possible historical influential factors, which is the second question of the problem set.
+**In this project, we are trying to figure out the changes in flim genres over years and their possible historical influential factors, which is the second question of the problem set.**
 
 ```{r,message=FALSE}
 db <- dbConnect_scidb(dbname = "imdb")
@@ -26,9 +26,9 @@ film_before_2017<-db %>%
              having production_year IS NOT NULL;")
 ```
 
-Q:Is is true that older movies tended to fit squarely in one genre, while more recent movies tend to span multiple genres?
+###Trend of Genre Multiplicity 
 
-```{r,message=FALSE}
+```{r, message=FALSE}
 #Find each film has how many genres in each year from 1874 to 2017
 film_genre = film_before_2017%>%
    group_by(id,production_year)%>%
@@ -36,7 +36,7 @@ film_genre = film_before_2017%>%
    arrange(production_year)
 ```
 
-```{r,message=FALSE}
+```{r, message=FALSE}
 # we define the film with more than 3 genres as the film with multilple genres and 
 # find out how many films has more than 3 genres in each year from 1874 to 2017
 multi_genre_film = 
@@ -46,7 +46,7 @@ multi_genre_film =
   summarise(multi_num = n_distinct(id))
 ```
 
-```{r,message=FALSE}
+```{r, message=FALSE}
 # how many films each year
 total_genre = 
   film_genre %>% 
@@ -55,44 +55,13 @@ total_genre =
 ```
 
 
-```{r,message=FALSE}
+```{r, message=FALSE}
 #percentages of multi_genres film each year
 join_total_multi = 
   total_genre %>% left_join(multi_genre_film, by ='production_year') %>%
   mutate(multi_num_new = ifelse(is.na(multi_num),0,multi_num)) %>%
   mutate(multi_percent = multi_num_new/total_num)
 ```
-
-```{r,message=FALSE}
-multi_plot = ggplot(join_total_multi,aes(x=production_year,y=multi_percent))+
-  geom_line()+
-  geom_smooth()+
-  scale_y_continuous(labels = scales::percent)+
-  labs(y= 'Percent of Multi-genre Films', x = 'Production Year')+
-  theme_minimal()
-
-multi_plot
-```
-
-From the graph, we can see that the percentage of movies that have multi-genres increaseed from 1900 to 1940, and then it kept decreasing till 2000. 
-Overall, it is true that movies made today tend to have overlapping genres than before. Also, it seems that the 1947 court decision that broke up the vertical integretion of studios has contributed to the decrease of overlapping genres.
-
-**The possible causes for dramatic increase in the total amount of films and their genres from 2003 might be:**
-2003:Hollywood action film star Arnold Schwarzenegger was elected the 38th governor of California. Therefore the film industry might be greatly encouraged.
-
-Then new easy ways for advertising and propogating new films emerge continuously:
-2004: Facebook launched. 
-
-2005: The first YouTube video was uploaded to YouTube.com in late spring.
-
-2005: The action sequel Charlie's Angels: Full Throttle (2003), the first Sony Pictures film, was also the first feature film to be released on Blu-Ray Disc, a next generation, high-definition optical disc format. 
-
-2006: The social networking and blogging site Twitter was founded and debuted.
-
-2007: Netflix became the first subscription service to offer ad-free, legal video streaming of movies directly onto one’s computer screen.
-
-(Retrieved from http://www.filmsite.org/2000sintro.html)
-
 
 ```{r,message=FALSE}
 #How many different genres appear in each year from 1874 to 2017 
@@ -107,8 +76,9 @@ info_type_year = film_before_2017%>%
 genre_oyG = info_type_year%>%
   ggplot(aes(x = production_year,y = sum))+
     geom_line()+
-    labs(y= 'Number of Genres', x = 'Production Year')+
-  theme_minimal()
+    labs(y= 'Total Genres', x = 'Production Year')+
+  theme_minimal() +
+  ggtitle('The Numbe of Total Genres Each Year')
 genre_oyG
 ```
 
@@ -120,12 +90,47 @@ film_oyG = film_before_2017%>%
   ggplot(aes(x = production_year,y = sum_films))+
   labs(y= 'Number of Films', x = 'Production Year')+
     geom_line() +
-    theme_minimal()
+    theme_minimal() +
+  ggtitle('The Number of Total Films Each Year')
 film_oyG
 ```
 
-From the 2 graphs above we can see that the number of genre types had a big increase from 1890 to 1910. The total amount of films had an increase accordingly during this period of time, but it soon decreased in around 1910-1920, mighty because of World War I. The amount of films didn't reach the amount once reached in around 1903 untill around 1995. However WW1 didn't decrease the genres of films made, but increased them.
+```{r, message=FALSE} 
+multi_plot = ggplot(join_total_multi,aes(x=production_year,y=multi_percent))+
+  geom_line()+
+  geom_smooth()+
+  scale_y_continuous(labels = scales::percent)+
+  labs(y= 'Percent of Multi-genre Films', x = 'Production Year')+
+  theme_minimal() +
+  ggtitle('Percentage of Films with More Than 3 Genres')
 
+multi_plot
+```
+
+From the first 2 graphs above we can see that the number of total genres had a big increase from 1890 to 1910. The total amount of films had an increase accordingly during this period of time, but it soon decreased in around 1910-1920. This decrease might be caused by World War I as people won't have money to see or produce moview during the war.
+
+From the third graph, we can see that the percentage of movies with multi-genres (more than 3 geners) increaseed from 1900 to 1940, and then it kept decreasing till 2000. 
+Overall, it is true that movies made today tend to have overlapping genres than before. Also, it seems that the 1947 court decision that broke up the vertical integretion of studios has contributed to the decrease of overlapping genres. 
+
+**The possible causes for dramatic increase in the total amount of films and their genres from 2003 might be:**
+
+2003:Hollywood action film star Arnold Schwarzenegger was elected the 38th governor of California, thereby encouraging the film industry.
+
+*As more and more new easier ways for advertising and propogating films emerge continuously, the number of different films increase:*
+
+2004: Facebook launched. 
+
+2005: The first YouTube video was uploaded to YouTube.com in late spring.
+
+2005: The action sequel Charlie's Angels: Full Throttle (2003), the first Sony Pictures film, was also the first feature film to be released on Blu-Ray Disc, a next generation, high-definition optical disc format. 
+
+2006: The social networking and blogging site Twitter was founded and debuted.
+
+2007: Netflix became the first subscription service to offer ad-free, legal video streaming of movies directly onto one’s computer screen.
+
+(Retrieved from http://www.filmsite.org/2000sintro.html)
+
+## Look at A Specific Kind Of Film: Horror Films
 ```{r,message=FALSE}
 db <- dbConnect_scidb(dbname = "imdb")
 #focus on horror films
@@ -138,19 +143,25 @@ horror_before_2017<-db %>%
               and production_year <= 2017
               and info like '%Horror%'
               having production_year is not null;")
-```
 
-```{r}
-glimpse(horror_before_2017)
-```
-```{r}
+# count how many horror films producted each year
 horror_before_2017<- horror_before_2017%>%
   group_by(production_year)%>%
   summarise(number=n_distinct(id))
 ```
 
-```{r}
-ggplot(horror_before_2017,aes(x=production_year,y=number))+geom_line()
+```{r, message = FALSE}
+h_film <- ggplot(horror_before_2017,aes(x=production_year,y=number)) + 
+  geom_line() + 
+  theme_minimal() +
+  labs(y = 'Number of Horror Movies') +
+  ggtitle('The Number of Horror Movies')
+
+h_film
 ```
+
 From the graph, it's clear that the number of horror movies increased greatly since 2000, which is in accordance with the trend of total amount of movies producted and their genres as shown in the previous graphs. This sudden increase in 2000 might be caused by the introduction of new propogating ways.
-Another reason might be, said the PopMatters, one of the most important reasons behind both the increase in the number of horror movies made in the US and the overall increase of horror in film productions is economics. Just think about it, for independent and low budget production companies, the horror genre has a strong exploitative nature, which makes these flicks easy to produce, market, and sell(https://www.popmatters.com/horror-cinema-by-the-numbers-2496198962.html).
+
+Another reason might be, said the PopMatters, one of the most important reasons behind both the increase in the number of horror movies made in the US and the overall increase of horror in film productions is economics. Just think about it, for independent and low budget production companies, the horror genre has a strong exploitative nature, which makes these flicks easy to produce, market, and sell.
+
+Resource: (https://www.popmatters.com/horror-cinema-by-the-numbers-2496198962.html).
