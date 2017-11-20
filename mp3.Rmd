@@ -152,3 +152,5 @@ horror_before_2017<- horror_before_2017%>%
 ```{r}
 ggplot(horror_before_2017,aes(x=production_year,y=number))+geom_line()
 ```
+From the graph, it's clear that the number of horror movies increased greatly since 2000, which is in accordance with the trend of total amount of movies producted and their genres as shown in the previous graphs. This sudden increase in 2000 might be caused by the introduction of new propogating ways.
+Another reason might be, said the PopMatters, one of the most important reasons behind both the increase in the number of horror movies made in the US and the overall increase of horror in film productions is economics. Just think about it, for independent and low budget production companies, the horror genre has a strong exploitative nature, which makes these flicks easy to produce, market, and sell(https://www.popmatters.com/horror-cinema-by-the-numbers-2496198962.html).
