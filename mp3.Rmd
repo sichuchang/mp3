@@ -140,4 +140,15 @@ horror_before_2017<-db %>%
               having production_year is not null;")
 ```
 
+```{r}
+glimpse(horror_before_2017)
+```
+```{r}
+horror_before_2017<- horror_before_2017%>%
+  group_by(production_year)%>%
+  summarise(number=n_distinct(id))
+```
 
+```{r}
+ggplot(horror_before_2017,aes(x=production_year,y=number))+geom_line()
+```
